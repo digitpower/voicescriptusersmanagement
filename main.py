@@ -74,17 +74,7 @@ def revokeKey():
 @app.route('/createLicense', methods = ['GET'])
 def createLicense():
     if request.method == 'GET': 
-        license = {}
-        license["period"] = request.args.get("period")
-        license["f1"] = request.args.get("f1")
-        license["f2"] = request.args.get("f2")
-        license["f3"] = request.args.get("f3")
-        license["f4"] = request.args.get("f4")
-        license["f5"] = request.args.get("f5")
-        license["f6"] = request.args.get("f6")
-        license["f7"] = request.args.get("f7")
-        license["f8"] = request.args.get("f8")
-        res = _createLicense(request.args.get("email"), license)
+        res = _createLicense(request.args.get("email"), request.args)
         return res
 
 def _getCustomerLicenses(customerId):
@@ -299,21 +289,22 @@ def _createLicense(userEmail, license):
     if (len(licenseKeys) != 0) :
         return {"result" : False, "reason" : "User Already has Licens(e)s"}
     else :
+        period=license.get('period')
         create_key_res = Key.create_key(key_operations_token, 
                                     product_id, 
-                                    period=license['period'], 
-                                    f1=bool(int(license['f1'])), 
-                                    f2=bool(int(license['f2'])), 
-                                    f3=bool(int(license['f3'])), 
-                                    f4=bool(int(license['f4'])),
-                                    f5=bool(int(license['f5'])),
-                                    f6=bool(int(license['f6'])),
-                                    f7=bool(int(license['f7'])),
-                                    f8=bool(int(license['f8'])),
+                                    period=license.get('period'),
+                                    f1=bool(int(license.get('f1'))),
+                                    f2=bool(int(license.get('f2'))),
+                                    f3=bool(int(license.get('f3'))),
+                                    f4=bool(int(license.get('f4'))),
+                                    f5=bool(int(license.get('f5'))),
+                                    f6=bool(int(license.get('f6'))),
+                                    f7=bool(int(license.get('f7'))),
+                                    f8=bool(int(license.get('f8'))),
                                     customer_id=customer_id, 
                                     max_no_of_machines=max_no_of_machines)
         key_first_element = create_key_res[0]#
-        serial = key_first_element['key'] #ok
+        serial = key_first_element['key']
         return {"result" : True, "data" : {"email" : userEmail, 'serial' : serial}}
 
 if __name__ == "__main__":
