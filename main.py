@@ -41,20 +41,7 @@ def getCustomer():
 def createCustomer():
     if request.method == 'GET':
         customerData = {}
-        customerData["name"] = request.args.get("name") 
-        customerData["email"] = request.args.get("email")
-        customerData["company"] = request.args.get("company")
-        customerData["productId"] = request.args.get("productId")
-        customerData["period"] = request.args.get("period")
-        customerData["f1"] = request.args.get("f1")
-        customerData["f2"] = request.args.get("f2")
-        customerData["f3"] = request.args.get("f3")
-        customerData["f4"] = request.args.get("f4")
-        customerData["f5"] = request.args.get("f5")
-        customerData["f6"] = request.args.get("f6")
-        customerData["f7"] = request.args.get("f7")
-        customerData["f8"] = request.args.get("f8")
-        result = _createCustomer(customerData)
+        result = _createCustomer(request.args)
     return result
 
 @app.route('/deleteUser', methods = ['GET'])
@@ -186,28 +173,29 @@ def createCustomers(csv_file, product_id) :
 def _createCustomer(customerData):
     
     # Check if user exists with provided email
-    existing_customers = _getCustomer(customerData["email"])
+    existing_customers = _getCustomer(customerData.get("email"))
     if len(existing_customers) != 0:
-        return {"result" : False, "reason" : f"User with mail {customerData['email']} already exists"}
+        return {"result" : False, "reason" : f"User with mail {customerData.get('email')} already exists"}
 
     res_customer = Customer.add_customer(customer_operations_token, 
-                      name = customerData["name"], 
-                      email = customerData["email"], 
-                      company_name = customerData["company"],
+                      name = customerData.get("name"), 
+                      email = customerData.get("email"), 
+                      company_name = customerData.get("company"),
                       enable_customer_association = True)
     data = res_customer[0]
     if data:
         create_key_res = Key.create_key(key_operations_token, 
-                                        customerData["productId"], 
-                                        period=customerData['period'], 
-                                        f1=bool(int(customerData['f1'])), 
-                                        f2=bool(int(customerData['f2'])), 
-                                        f3=bool(int(customerData['f3'])), 
-                                        f4=bool(int(customerData['f4'])),
-                                        f5=bool(int(customerData['f5'])),
-                                        f6=bool(int(customerData['f6'])),
-                                        f7=bool(int(customerData['f7'])),
-                                        f8=bool(int(customerData['f8'])),
+                                        customerData.get('productId'), 
+                                        period=customerData.get('period'), 
+                                        f1=bool(int(customerData.get('f1'))), 
+                                        f2=bool(int(customerData.get('f2'))), 
+                                        f3=bool(int(customerData.get('f3'))), 
+                                        f4=bool(int(customerData.get('f4'))),
+                                        f5=bool(int(customerData.get('f5'))),
+                                        f6=bool(int(customerData.get('f6'))),
+                                        f7=bool(int(customerData.get('f7'))),
+                                        f8=bool(int(customerData.get('f8'))),                                        
+                                        
                                         customer_id=data['customerId'], 
                                         max_no_of_machines=max_no_of_machines)
         key_first_element = create_key_res[0]#
